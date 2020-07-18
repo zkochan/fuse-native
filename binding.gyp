@@ -9,7 +9,7 @@
       "<!(node -e \"require('fuse-shared-library/lib')\")",
     ],
     "sources": [
-      "fuse-native.c"
+      "fuse-native.cpp"
     ],
     'xcode_settings': {
       'OTHER_CFLAGS': [
@@ -23,6 +23,17 @@
       '-O3',
       '-Wall'
     ],
+    "conditions": [
+      ['OS!="win"', {}],
+      ['OS=="win"', {
+        "include_dirs": [
+          "$(VCPKG_ROOT)/packages/pthreads_x64-windows/include"
+        ],
+        "libraries": [
+          "$(VCPKG_ROOT)/packages/pthreads_x64-windows/lib/pthreadVC3.lib"
+        ],
+      }]
+    ],
   }, {
     "target_name": "postinstall",
     "type": "none",
@@ -30,6 +41,16 @@
     "copies": [{
       "destination": "build/Release",
       "files": [ "<!(node -e \"require('fuse-shared-library/lib')\")" ],
-    }]
+    }],
+    "conditions": [
+      ['OS=="win"', {
+        "copies": [
+          {"destination":"build/Release", "files": [
+            "<!(echo %ProgramFiles(x86)%)/WinFsp/bin/winfsp-x64.dll",
+            "$(VCPKG_ROOT)/packages/pthreads_x64-windows/bin/pthreadVC3.dll",
+          ]}
+        ],
+      }]
+    ],
   }]
 }

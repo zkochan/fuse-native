@@ -1,5 +1,8 @@
 const Fuse = require('./')
 
+const directory = 0o40000
+const regularFile = 0o100000
+
 const ops = {
   readdir: function (path, cb) {
     console.log('readdir(%s)', path)
@@ -10,7 +13,7 @@ const ops = {
         ctime: new Date(),
         nlink: 1,
         size: 12,
-        mode: 33188,
+        mode: regularFile | 0o777,
         uid: process.getuid ? process.getuid() : 0,
         gid: process.getgid ? process.getgid() : 0
       }
@@ -31,7 +34,7 @@ const ops = {
         ctime: new Date(),
         nlink: 1,
         size: 100,
-        mode: 16877,
+        mode: directory | 0o777,
         uid: process.getuid ? process.getuid() : 0,
         gid: process.getgid ? process.getgid() : 0
       })
@@ -44,7 +47,7 @@ const ops = {
         ctime: new Date(),
         nlink: 1,
         size: 12,
-        mode: 33188,
+        mode: regularFile | 0o777,
         uid: process.getuid ? process.getuid() : 0,
         gid: process.getgid ? process.getgid() : 0
       })

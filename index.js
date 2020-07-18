@@ -9,6 +9,7 @@ const { beforeMount, beforeUnmount, configure, unconfigure, isConfigured } = req
 const binding = require('node-gyp-build')(__dirname)
 
 const IS_OSX = os.platform() === 'darwin'
+const IS_WIN32 = os.platform() === 'win32'
 const OSX_FOLDER_ICON = '/System/Library/CoreServices/CoreTypes.bundle/Contents/Resources/GenericFolderIcon.icns'
 const HAS_FOLDER_ICON = IS_OSX && fs.existsSync(OSX_FOLDER_ICON)
 const DEFAULT_TIMEOUT = 15 * 1000
@@ -134,6 +135,11 @@ const OpcodesAndDefaults = new Map([
 class Fuse extends Nanoresource {
   constructor (mnt, ops, opts = {}) {
     super()
+
+    if (IS_WIN32) {
+      if (opts.uid == null) opts.uid = -1;
+      if (opts.gid == null) opts.gid = -1;
+    }
 
     this.opts = opts
     this.mnt = path.resolve(mnt)
@@ -282,6 +288,8 @@ class Fuse extends Nanoresource {
   // Static methods
 
   static unmount (mnt, cb) {
+    if (IS_WIN32) return process.nextTick(cb, null)
+
     mnt = JSON.stringify(mnt)
     const cmd = IS_OSX ? `diskutil unmount force ${mnt}` : `fusermount -uz ${mnt}`
     exec(cmd, err => {
@@ -313,32 +321,39 @@ class Fuse extends Nanoresource {
       const opts = self._fuseOptions()
       const implemented = self._getImplementedArray()
 
-      return fs.stat(self.mnt, (err, stat) => {
-        if (err && err.errno !== -2) return cb(err)
-        if (err) {
-          if (!self._mkdir) return cb(new Error('Mountpoint does not exist'))
-          return fs.mkdir(self.mnt, { recursive: true }, err => {
-            if (err) return cb(err)
-            fs.stat(self.mnt, (err, stat) => {
-              if (err) return cb(err)
-              return onexists(stat)
-            })
-          })
-        }
-        if (!stat.isDirectory()) return cb(new Error('Mountpoint is not a directory'))
-        return onexists(stat)
-      })
+      return onexists()
+
+      // return fs.stat(self.mnt, (err, stat) => {
+      //   if (err && err.errno !== -2) return cb(err)
+      //   if (err) {
+      //     if (!self._mkdir) return cb(new Error('Mountpoint does not exist'))
+      //     return fs.mkdir(self.mnt, { recursive: true }, err => {
+      //       if (err) return cb(err)
+      //       fs.stat(self.mnt, (err, stat) => {
+      //         if (err) return cb(err)
+      //         return onexists(stat)
+      //       })
+      //     })
+      //   }
+      //   if (!stat.isDirectory()) return cb(new Error('Mountpoint is not a directory'))
+      //   return onexists(stat)
+      // })
 
       function onexists (stat) {
-        fs.stat(path.join(self.mnt, '..'), (_, parent) => {
-          if (parent && parent.dev !== stat.dev) return cb(new Error('Mountpoint in use'))
-          try {
-            // TODO: asyncify
-            binding.fuse_native_mount(self.mnt, opts, self._thread, self, self._malloc, self._handlers, implemented)
-          } catch (err) {
-            return cb(err)
-          }
-        })
+        // fs.stat(path.join(self.mnt, '..'), (_, parent) => {
+        //   if (parent && parent.dev !== stat.dev) return cb(new Error('Mountpoint in use'))
+        //   try {
+        //     // TODO: asyncify
+        //     binding.fuse_native_mount(self.mnt, opts, self._thread, self, self._malloc, self._handlers, implemented)
+        //   } catch (err) {
+        //     return cb(err)
+        //   }
+        // })
+        try {
+          binding.fuse_native_mount(self.mnt, opts, self._thread, self, self._malloc, self._handlers, implemented)
+        } catch (err) {
+          return cb(err)
+        }
       }
     }
   }
@@ -634,7 +649,7 @@ class Fuse extends Nanoresource {
   // Public API
 
   mount (cb) {
-    return this.open(cb)
+    return this.open(err => setTimeout(cb, 100, err))
   }
 
   unmount (cb) {

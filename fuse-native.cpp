@@ -1,4 +1,7 @@
-#define FUSE_USE_VERSION 29
+#define FUSE_USE_VERSION 28
+
+#ifdef _WIN32
+#endif
 
 #include <uv.h>
 #include <node_api.h>
@@ -12,15 +15,34 @@
 #include <fuse.h>
 #include <fuse_opt.h>
 #include <fuse_common.h>
+
+#ifdef _WIN32
+
+#define statvfs fuse_statvfs
+#define stat fuse_stat
+#define mode_t fuse_mode_t
+#define uid_t fuse_uid_t
+#define gid_t fuse_gid_t
+#define off_t fuse_off_t
+
+#else
+
 #include <fuse_lowlevel.h>
 
 #include <unistd.h>
 #include <sys/wait.h>
+
+#endif
+
 #include <pthread.h>
 
 static int IS_ARRAY_BUFFER_DETACH_SUPPORTED = 0;
 
+extern "C" {
+
 napi_status napi_detach_arraybuffer(napi_env env, napi_value buf);
+
+}
 
 #define FUSE_NATIVE_CALLBACK(fn, blk)\
   napi_env env = ft->env;\
@@ -193,13 +215,13 @@ static uint64_t uint32s_to_uint64 (uint32_t **ints) {
   return high * 4294967296 + low;
 }
 
-static void uint32s_to_timespec (struct timespec* ts, uint32_t** ints) {
+static void uint32s_to_timespec (struct fuse_timespec* ts, uint32_t** ints) {
   uint64_t ms = uint32s_to_uint64(ints);
   ts->tv_sec = ms / 1000;
   ts->tv_nsec = (ms % 1000) * 1000000;
 }
 
-static uint64_t timespec_to_uint64 (const struct timespec* ts) {
+static uint64_t timespec_to_uint64 (const struct fuse_timespec* ts) {
   uint64_t ms = (ts->tv_sec * 1000) + (ts->tv_nsec / 1000000);
   return ms;
 }
@@ -336,7 +358,7 @@ FUSE_METHOD(create, 2, 1, (const char *path, mode_t mode, struct fuse_file_info 
   }
 })
 
-FUSE_METHOD_VOID(utimens, 5, 0, (const char *path, const struct timespec tv[2]), {
+FUSE_METHOD_VOID(utimens, 5, 0, (const char *path, const struct fuse_timespec tv[2]), {
   l->path = path;
   l->atime = timespec_to_uint64(&tv[0]);
   l->mtime = timespec_to_uint64(&tv[1]);
@@ -604,8 +626,9 @@ FUSE_METHOD(readlink, 1, 1, (const char *path, char *linkname, size_t len), {
 }, {
   napi_create_string_utf8(env, l->path, NAPI_AUTO_LENGTH, &(argv[2]));
 }, {
-  NAPI_ARGV_UTF8(linkname, l->len, 2)
+  NAPI_ARGV_UTF8_MALLOC(linkname, 2)
   strncpy(l->linkname, linkname, l->len);
+  free(linkname);
 })
 
 FUSE_METHOD_VOID(chown, 3, 0, (const char *path, uid_t uid, gid_t gid), {
@@ -715,9 +738,11 @@ static void * fuse_native_init (struct fuse_conn_info *conn) {
 // Top-level dispatcher
 
 static void fuse_native_dispatch (uv_async_t* handle) {
+  typedef void (*fn_t)(uv_async_t *, fuse_thread_locals_t *, fuse_thread_t *);
+
   fuse_thread_locals_t *l = (fuse_thread_locals_t *) handle->data;
   fuse_thread_t *ft = l->fuse;
-  void (*fn)(uv_async_t *, fuse_thread_locals_t *, fuse_thread_t *) = l->op_fn;
+  fn_t fn = (fn_t)l->op_fn;
 
   fn(handle, l, ft);
 }
@@ -784,7 +809,12 @@ static void* start_fuse_thread (void *data) {
   fuse_loop_mt(ft->fuse);
 
   fuse_unmount(ft->mnt, ft->ch);
+  // is just ignoring this really correct? I imagine it's possible that it's fine,
+  // because WinFsp is gonna be completely different from libfuse under the hood
+  // and they don't even provide fuse_session_remove_chan anyway
+#ifndef _WIN32
   fuse_session_remove_chan(ft->ch);
+#endif
   fuse_destroy(ft->fuse);
 
   return NULL;
@@ -856,7 +886,7 @@ NAPI_METHOD(fuse_native_mount) {
   struct fuse_chan *ch = fuse_mount(mnt, &args);
 
   if (ch == NULL) {
-    napi_throw_error(env, "fuse failed", "fuse failed");
+    napi_throw_error(env, "fuse failed (fuse_mount)", "fuse failed (fuse_mount)");
     return NULL;
   }
 
@@ -873,13 +903,26 @@ NAPI_METHOD(fuse_native_mount) {
 
   int err = uv_async_init(uv_default_loop(), &(ft->async), (uv_async_cb) fuse_native_async_init);
 
-  if (fuse == NULL || err < 0) {
-    napi_throw_error(env, "fuse failed", "fuse failed");
+  if (fuse == NULL) {
+    napi_throw_error(env, "fuse failed (fuse_new)", "fuse failed (fuse_new)");
+    return NULL;
+  }
+  if (err < 0) {
+    napi_throw_error(env, "fuse failed (uv_async_init)", "fuse failed (uv_async_init)");
     return NULL;
   }
 
-  pthread_attr_init(&(ft->attr));
-  pthread_create(&(ft->thread), &(ft->attr), start_fuse_thread, ft);
+  err = pthread_attr_init(&(ft->attr));
+  if (err != 0) {
+    napi_throw_error(env, "fuse failed (pthread_attr_init)", "fuse failed (pthread_attr_init)");
+    return NULL;
+  }
+
+  err = pthread_create(&(ft->thread), &(ft->attr), start_fuse_thread, ft);
+  if (err != 0) {
+    napi_throw_error(env, "fuse failed (pthread_create)", "fuse failed (pthread_create)");
+    return NULL;
+  }
 
   return NULL;
 }
@@ -897,6 +940,10 @@ NAPI_METHOD(fuse_native_unmount) {
   // TODO: fix the async holding the loop
   uv_unref((uv_handle_t *) &(ft->async));
   ft->mounted--;
+
+#ifdef _WIN32
+  fuse_exit(ft->fuse);
+#endif
 
   return NULL;
 }

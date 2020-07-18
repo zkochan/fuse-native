@@ -56,7 +56,8 @@ tape('mount + unmount + mount with same instance fails', function (t) {
   })
 })
 
-tape('mnt point must exist', function (t) {
+tape('(not win32) mnt point must exist', function (t) {
+  if (os.platform() === 'win32') return t.end()
   const fuse = new Fuse('.does-not-exist', {}, { debug: false })
   fuse.mount(function (err) {
     t.ok(err, 'had error')
@@ -64,7 +65,8 @@ tape('mnt point must exist', function (t) {
   })
 })
 
-tape('mnt point must be directory', function (t) {
+tape('(not win32) mnt point must be directory', function (t) {
+  if (os.platform() === 'win32') return t.end()
   const fuse = new Fuse(__filename, {}, { debug: false })
   fuse.mount(function (err) {
     t.ok(err, 'had error')
@@ -117,7 +119,8 @@ tape('mounting over a broken mountpoint with force succeeds', function (t) {
   })
 })
 
-tape('mounting without mkdir option and a nonexistent mountpoint fails', function (t) {
+tape('(not win32) mounting without mkdir option and a nonexistent mountpoint fails', function (t) {
+  if (os.platform() === 'win32') return t.end()
   const nonexistentMnt = createMountpoint({ doNotCreate: true })
 
   const fuse = new Fuse(nonexistentMnt, {}, { debug: false })
