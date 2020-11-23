@@ -40,7 +40,7 @@
     "dependencies": ["fuse"],
     "copies": [{
       "destination": "build/Release",
-      "files": [ "<!(node -e \"require('fuse-shared-library/lib')\")" ],
+      "files": ["node -e require('fuse-shared-library/lib')"],
     }],
     "conditions": [
       ['OS=="win"', {
