@@ -8,9 +8,6 @@
     "libraries": [
       "<!(node -e \"require('fuse-shared-library/lib')\")",
     ],
-    "sources": [
-      "fuse-native.cpp"
-    ],
     'xcode_settings': {
       'OTHER_CFLAGS': [
         '-g',
@@ -24,7 +21,7 @@
       '-Wall'
     ],
     "conditions": [
-      ['OS!="win"', {}],
+      ['OS!="win"', {"sources":["fuse-native.c"]}],
       ['OS=="win"', {
         "include_dirs": [
           "$(VCPKG_ROOT)/packages/pthreads_x64-windows/include"
@@ -32,6 +29,7 @@
         "libraries": [
           "$(VCPKG_ROOT)/packages/pthreads_x64-windows/lib/pthreadVC3.lib"
         ],
+        "sources":["fuse-native.cpp"]
       }]
     ],
   }, {
