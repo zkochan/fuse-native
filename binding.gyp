@@ -48,7 +48,7 @@
       ['OS!="win"', {
         "copies": [{
           "destination": "build/Release",
-          "files": ["node -e require('fuse-shared-library/lib')"],
+          "files": ["<!(node -e \"require('fuse-shared-library/lib')\")"],
         }],
       }]
     ],
