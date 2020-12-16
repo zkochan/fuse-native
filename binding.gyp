@@ -36,10 +36,6 @@
     "target_name": "postinstall",
     "type": "none",
     "dependencies": ["fuse"],
-    "copies": [{
-      "destination": "build/Release",
-      "files": ["node -e require('fuse-shared-library/lib')"],
-    }],
     "conditions": [
       ['OS=="win"', {
         "copies": [
@@ -48,6 +44,12 @@
             "$(VCPKG_ROOT)/packages/pthreads_x64-windows/bin/pthreadVC3.dll",
           ]}
         ],
+      }],
+      ['OS!="win"', {
+        "copies": [{
+          "destination": "build/Release",
+          "files": ["node -e require('fuse-shared-library/lib')"],
+        }],
       }]
     ],
   }]
