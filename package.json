@@ -7,7 +7,6 @@
     "fuse-native": "./bin.js"
   },
   "scripts": {
-    "install": "node-gyp-build",
     "buildgyp": "node-gyp-build",
     "test": "tape test/*.js",
     "prebuild": "prebuildify --napi --strip",
