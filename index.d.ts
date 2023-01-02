@@ -80,7 +80,7 @@ declare var fuse: {
   beforeUnmount: (cb: (err: null | Error) => void) => any;
   configure: (cb: (err: null | Error) => void) => any;
   unconfigure: (cb: (err: null | Error) => void) => any;
-  isConfigured: (cb: (err: null, result: boolean) => any) => any;
+  isConfigured: (cb: (err: null | Error, result: boolean) => any) => any;
 
   // Error codes - numeric value retrieved from Fuse instance with errno(code)
   EPERM: -1;
