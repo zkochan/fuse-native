@@ -72,7 +72,7 @@ type OPTIONS = {
 declare var fuse: {
   // Constructor
   (mnt: string, ops: OPERATIONS, opts: OPTIONS): fuse.Fuse;
-  new(mnt: string, ops, opts: OPTIONS): fuse.Fuse;
+  new(mnt: string, ops: OPERATIONS, opts: OPTIONS): fuse.Fuse;
   // STATIC: Added by fuse-native
   unmount: (mnt: string, cb: (err: null | Error) => void) => any;
   // STATIC: Added by fuse-native-PLATFORM
