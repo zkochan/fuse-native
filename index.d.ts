@@ -1,240 +1,242 @@
-type OPERATIONS = {
-    'init': (...args2: any[]) => void;
-    'error': (...args2: any[]) => void;
-    'access': (...args2: any[]) => void;
-    'statfs': (...args2: any[]) => void;
-    'fgetattr': (...args2: any[]) => void;
-    'getattr': (...args2: any[]) => void;
-    'flush': (...args2: any[]) => void;
-    'fsync': (...args2: any[]) => void;
-    'fsyncdir': (...args2: any[]) => void;
-    'readdir': (...args2: any[]) => void;
-    'truncate': (...args2: any[]) => void;
-    'ftruncate': (...args2: any[]) => void;
-    'utimens': (...args2: any[]) => void;
-    'readlink': (...args2: any[]) => void;
-    'chown': (...args2: any[]) => void;
-    'chmod': (...args2: any[]) => void;
-    'mknod': (...args2: any[]) => void;
-    'setxattr': (...args2: any[]) => void;
-    'getxattr': (...args2: any[]) => void;
-    'listxattr': (...args2: any[]) => void;
-    'removexattr': (...args2: any[]) => void;
-    'open': (...args2: any[]) => void;
-    'opendir': (...args2: any[]) => void;
-    'read': (...args2: any[]) => void;
-    'write': (...args2: any[]) => void;
-    'release': (...args2: any[]) => void;
-    'releasedir': (...args2: any[]) => void;
-    'create': (...args2: any[]) => void;
-    'unlink': (...args2: any[]) => void;
-    'rename': (...args2: any[]) => void;
-    'link': (...args2: any[]) => void;
-    'symlink': (...args2: any[]) => void;
-    'mkdir': (...args2: any[]) => void;
-    'rmdir': (...args2: any[]) => void
-};
+declare namespace Fuse {
+  export interface OPERATIONS {
+    init?: (...args: any[]) => void;
+    error?: (...args: any[]) => void;
+    access?: (...args: any[]) => void;
+    statfs?: (...args: any[]) => void;
+    fgetattr?: (...args: any[]) => void;
+    getattr?: (...args: any[]) => void;
+    flush?: (...args: any[]) => void;
+    fsync?: (...args: any[]) => void;
+    fsyncdir?: (...args: any[]) => void;
+    readdir?: (...args: any[]) => void;
+    truncate?: (...args: any[]) => void;
+    ftruncate?: (...args: any[]) => void;
+    utimens?: (...args: any[]) => void;
+    readlink?: (...args: any[]) => void;
+    chown?: (...args: any[]) => void;
+    chmod?: (...args: any[]) => void;
+    mknod?: (...args: any[]) => void;
+    setxattr?: (...args: any[]) => void;
+    getxattr?: (...args: any[]) => void;
+    listxattr?: (...args: any[]) => void;
+    removexattr?: (...args: any[]) => void;
+    open?: (...args: any[]) => void;
+    opendir?: (...args: any[]) => void;
+    read?: (...args: any[]) => void;
+    write?: (...args: any[]) => void;
+    release?: (...args: any[]) => void;
+    releasedir?: (...args: any[]) => void;
+    create?: (...args: any[]) => void;
+    unlink?: (...args: any[]) => void;
+    rename?: (...args: any[]) => void;
+    link?: (...args: any[]) => void;
+    symlink?: (...args: any[]) => void;
+    mkdir?: (...args: any[]) => void;
+    rmdir?: (...args: any[]) => void
+  }
 
-// See https://github.com/refinio/fuse-native
-// See https://man7.org/linux/man-pages/man8/mount.fuse3.8.html
-type OPTIONS = {
-  uid?: number;
-  gid?: number;
-  timeout?: number
-  displayFolder?: string;
-  debug?: boolean;
-  force?: boolean;
-  mkdir?: boolean;
-  allowOther?: boolean;
-  allowRoot?: boolean;
-  autoUnmount?: boolean;
-  defaultPermissions?: string;
-  blkdev?: string;
-  blksize?: number;
-  maxRead?: number;
-  fd?: number;
-  userId?: number;
-  fsname?: string;
-  subtype?: string;
-  kernelCache?: boolean;
-  autoCache?: boolean;
-  umask?: number;
-  entryTimeout?: number;
-  attrTimeout?: number;
-  acAttrTimeout?: number;
-  noforget?: boolean;
-  remember?: number;
-  modules?: string;
-  name?: string;
-  mnt?: string;
-};
-
-declare var fuse: {
-  // Constructor
-  (mnt: string, ops: OPERATIONS, opts: OPTIONS): fuse.Fuse;
-  new(mnt: string, ops: OPERATIONS, opts: OPTIONS): fuse.Fuse;
-  // STATIC: Added by fuse-native
-  unmount: (mnt: string, cb: (err: null | Error) => void) => any;
-  // STATIC: Added by fuse-native-PLATFORM
-  beforeMount: (cb: (err: null | Error) => void) => any;
-  beforeUnmount: (cb: (err: null | Error) => void) => any;
-  configure: (cb: (err: null | Error) => void) => any;
-  unconfigure: (cb: (err: null | Error) => void) => any;
-  isConfigured: (cb: (err: null | Error, result: boolean) => any) => any;
-
-  // Error codes - numeric value retrieved from Fuse instance with errno(code)
-  EPERM: -1;
-  ENOENT: -2;
-  ESRCH: -3;
-  EINTR: -4;
-  EIO: -5;
-  ENXIO: -6;
-  E2BIG: -7;
-  ENOEXEC: -8;
-  EBADF: -9;
-  ECHILD: -10;
-  EAGAIN: -11;
-  ENOMEM: -12;
-  EACCES: -13;
-  EFAULT: -14;
-  ENOTBLK: -15;
-  EBUSY: -16;
-  EEXIST: -17;
-  EXDEV: -18;
-  ENODEV: -19;
-  ENOTDIR: -20;
-  EISDIR: -21;
-  EINVAL: -22;
-  ENFILE: -23;
-  EMFILE: -24;
-  ENOTTY: -25;
-  ETXTBSY: -26;
-  EFBIG: -27;
-  ENOSPC: -28;
-  ESPIPE: -29;
-  EROFS: -30;
-  EMLINK: -31;
-  EPIPE: -32;
-  EDOM: -33;
-  ERANGE: -34;
-  EDEADLK: -35;
-  ENAMETOOLONG: -36;
-  ENOLCK: -37;
-  ENOSYS: -38;
-  ENOTEMPTY: -39;
-  ELOOP: -40;
-  EWOULDBLOCK: -11;
-  ENOMSG: -42;
-  EIDRM: -43;
-  ECHRNG: -44;
-  EL2NSYNC: -45;
-  EL3HLT: -46;
-  EL3RST: -47;
-  ELNRNG: -48;
-  EUNATCH: -49;
-  ENOCSI: -50;
-  EL2HLT: -51;
-  EBADE: -52;
-  EBADR: -53;
-  EXFULL: -54;
-  ENOANO: -55;
-  EBADRQC: -56;
-  EBADSLT: -57;
-  EDEADLOCK: -35;
-  EBFONT: -59;
-  ENOSTR: -60;
-  ENODATA: -61;
-  ETIME: -62;
-  ENOSR: -63;
-  ENONET: -64;
-  ENOPKG: -65;
-  EREMOTE: -66;
-  ENOLINK: -67;
-  EADV: -68;
-  ESRMNT: -69;
-  ECOMM: -70;
-  EPROTO: -71;
-  EMULTIHOP: -72;
-  EDOTDOT: -73;
-  EBADMSG: -74;
-  EOVERFLOW: -75;
-  ENOTUNIQ: -76;
-  EBADFD: -77;
-  EREMCHG: -78;
-  ELIBACC: -79;
-  ELIBBAD: -80;
-  ELIBSCN: -81;
-  ELIBMAX: -82;
-  ELIBEXEC: -83;
-  EILSEQ: -84;
-  ERESTART: -85;
-  ESTRPIPE: -86;
-  EUSERS: -87;
-  ENOTSOCK: -88;
-  EDESTADDRREQ: -89;
-  EMSGSIZE: -90;
-  EPROTOTYPE: -91;
-  ENOPROTOOPT: -92;
-  EPROTONOSUPPORT: -93;
-  ESOCKTNOSUPPORT: -94;
-  EOPNOTSUPP: -95;
-  EPFNOSUPPORT: -96;
-  EAFNOSUPPORT: -97;
-  EADDRINUSE: -98;
-  EADDRNOTAVAIL: -99;
-  ENETDOWN: -100;
-  ENETUNREACH: -101;
-  ENETRESET: -102;
-  ECONNABORTED: -103;
-  ECONNRESET: -104;
-  ENOBUFS: -105;
-  EISCONN: -106;
-  ENOTCONN: -107;
-  ESHUTDOWN: -108;
-  ETOOMANYREFS: -109;
-  ETIMEDOUT: -110;
-  ECONNREFUSED: -111;
-  EHOSTDOWN: -112;
-  EHOSTUNREACH: -113;
-  EALREADY: -114;
-  EINPROGRESS: -115;
-  ESTALE: -116;
-  EUCLEAN: -117;
-  ENOTNAM: -118;
-  ENAVAIL: -119;
-  EISNAM: -120;
-  EREMOTEIO: -121;
-  EDQUOT: -122;
-  ENOMEDIUM: -123;
-  EMEDIUMTYPE: -124;
-}
-
-declare namespace fuse {
-  interface Fuse {
-    opts: OPTIONS;
-    mnt: string;
-    ops: OPERATIONS;
-    timeout: number;
-
-    mount: (cb: (err: null | Error) => any) => void;
-    unmount: (cb: (err: null | Error) => any) => void;
-    errno: (code?: string) => number;
-
-    // From "nanoresource"
-    // See https://github.com/mafintosh/nanoresource/blob/master/index.js
-    opening: boolean;
-    opened: boolean;
-    closing: boolean;
-    closed: boolean;
-    actives: number;
-    open(cb: (err?: Error) => any): void;
-    active(cb?: (err?: Error) => any): boolean;
-    inactive(): void;
-    inactive(cb: (err: Error, val: any) => any, err: null, val: any): void;
-    inactive(cb: (err: Error, val: any) => any, err: Error,): void;
-    close(cb?: (err?: Error) => any): void;
-    close(allowActive: boolean, cb: (err?: Error) => any): void;
+  // See https://github.com/refinio/fuse-native
+  // See https://man7.org/linux/man-pages/man8/mount.fuse3.8.html
+  export interface OPTIONS {
+    uid?: number;
+    gid?: number;
+    timeout?: number
+    displayFolder?: string;
+    debug?: boolean;
+    force?: boolean;
+    mkdir?: boolean;
+    allowOther?: boolean;
+    allowRoot?: boolean;
+    autoUnmount?: boolean;
+    defaultPermissions?: string;
+    blkdev?: string;
+    blksize?: number;
+    maxRead?: number;
+    fd?: number;
+    userId?: number;
+    fsname?: string;
+    subtype?: string;
+    kernelCache?: boolean;
+    autoCache?: boolean;
+    umask?: number;
+    entryTimeout?: number;
+    attrTimeout?: number;
+    acAttrTimeout?: number;
+    noforget?: boolean;
+    remember?: number;
+    modules?: string;
+    name?: string;
+    mnt?: string;
   }
 }
 
-export = fuse;
+declare class Fuse {
+  constructor(mnt: string, ops?: Fuse.OPERATIONS, opts?: Fuse.OPTIONS);
+
+  // Added by fuse-native
+  static unmount: (mnt: string, cb: (err: null | Error) => void) => any;
+
+  // Added by fuse-native-PLATFORM
+  static beforeMount: (cb: (err: null | Error) => any) => void;
+  static beforeUnmount: (cb: (err: null | Error) => any) => void;
+  static configure: (cb: (err: null | Error) => any) => void;
+  static unconfigure: (cb: (err: null | Error) => any) => void;
+  static isConfigured: (cb: (err: null | Error, result: boolean) => any) => void;
+
+  // Error codes - numeric value retrieved from Fuse instance with errno(code)
+  static EPERM: -1;
+  static ENOENT: -2;
+  static ESRCH: -3;
+  static EINTR: -4;
+  static EIO: -5;
+  static ENXIO: -6;
+  static E2BIG: -7;
+  static ENOEXEC: -8;
+  static EBADF: -9;
+  static ECHILD: -10;
+  static EAGAIN: -11;
+  static ENOMEM: -12;
+  static EACCES: -13;
+  static EFAULT: -14;
+  static ENOTBLK: -15;
+  static EBUSY: -16;
+  static EEXIST: -17;
+  static EXDEV: -18;
+  static ENODEV: -19;
+  static ENOTDIR: -20;
+  static EISDIR: -21;
+  static EINVAL: -22;
+  static ENFILE: -23;
+  static EMFILE: -24;
+  static ENOTTY: -25;
+  static ETXTBSY: -26;
+  static EFBIG: -27;
+  static ENOSPC: -28;
+  static ESPIPE: -29;
+  static EROFS: -30;
+  static EMLINK: -31;
+  static EPIPE: -32;
+  static EDOM: -33;
+  static ERANGE: -34;
+  static EDEADLK: -35;
+  static ENAMETOOLONG: -36;
+  static ENOLCK: -37;
+  static ENOSYS: -38;
+  static ENOTEMPTY: -39;
+  static ELOOP: -40;
+  static EWOULDBLOCK: -11;
+  static ENOMSG: -42;
+  static EIDRM: -43;
+  static ECHRNG: -44;
+  static EL2NSYNC: -45;
+  static EL3HLT: -46;
+  static EL3RST: -47;
+  static ELNRNG: -48;
+  static EUNATCH: -49;
+  static ENOCSI: -50;
+  static EL2HLT: -51;
+  static EBADE: -52;
+  static EBADR: -53;
+  static EXFULL: -54;
+  static ENOANO: -55;
+  static EBADRQC: -56;
+  static EBADSLT: -57;
+  static EDEADLOCK: -35;
+  static EBFONT: -59;
+  static ENOSTR: -60;
+  static ENODATA: -61;
+  static ETIME: -62;
+  static ENOSR: -63;
+  static ENONET: -64;
+  static ENOPKG: -65;
+  static EREMOTE: -66;
+  static ENOLINK: -67;
+  static EADV: -68;
+  static ESRMNT: -69;
+  static ECOMM: -70;
+  static EPROTO: -71;
+  static EMULTIHOP: -72;
+  static EDOTDOT: -73;
+  static EBADMSG: -74;
+  static EOVERFLOW: -75;
+  static ENOTUNIQ: -76;
+  static EBADFD: -77;
+  static EREMCHG: -78;
+  static ELIBACC: -79;
+  static ELIBBAD: -80;
+  static ELIBSCN: -81;
+  static ELIBMAX: -82;
+  static ELIBEXEC: -83;
+  static EILSEQ: -84;
+  static ERESTART: -85;
+  static ESTRPIPE: -86;
+  static EUSERS: -87;
+  static ENOTSOCK: -88;
+  static EDESTADDRREQ: -89;
+  static EMSGSIZE: -90;
+  static EPROTOTYPE: -91;
+  static ENOPROTOOPT: -92;
+  static EPROTONOSUPPORT: -93;
+  static ESOCKTNOSUPPORT: -94;
+  static EOPNOTSUPP: -95;
+  static EPFNOSUPPORT: -96;
+  static EAFNOSUPPORT: -97;
+  static EADDRINUSE: -98;
+  static EADDRNOTAVAIL: -99;
+  static ENETDOWN: -100;
+  static ENETUNREACH: -101;
+  static ENETRESET: -102;
+  static ECONNABORTED: -103;
+  static ECONNRESET: -104;
+  static ENOBUFS: -105;
+  static EISCONN: -106;
+  static ENOTCONN: -107;
+  static ESHUTDOWN: -108;
+  static ETOOMANYREFS: -109;
+  static ETIMEDOUT: -110;
+  static ECONNREFUSED: -111;
+  static EHOSTDOWN: -112;
+  static EHOSTUNREACH: -113;
+  static EALREADY: -114;
+  static EINPROGRESS: -115;
+  static ESTALE: -116;
+  static EUCLEAN: -117;
+  static ENOTNAM: -118;
+  static ENAVAIL: -119;
+  static EISNAM: -120;
+  static EREMOTEIO: -121;
+  static EDQUOT: -122;
+  static ENOMEDIUM: -123;
+  static EMEDIUMTYPE: -124;
+
+  public opts: Fuse.OPTIONS;
+  public mnt: string;
+  public ops: Fuse.OPERATIONS;
+  public timeout: number;
+
+  public mount: (cb: (err: null | Error) => any) => void;
+  public unmount: (cb: (err: null | Error) => any) => void;
+  public errno: (code?: string) => number;
+
+  // From "nanoresource"
+  // See https://github.com/mafintosh/nanoresource/blob/master/index.js
+  public opening: boolean;
+  public opened: boolean;
+  public closing: boolean;
+  public closed: boolean;
+  public actives: number;
+
+  public open(cb: (err?: Error) => any): void;
+
+  public active(cb?: (err?: Error) => any): boolean;
+
+  public inactive(): void;
+  public inactive(cb: (err: Error, val: any) => any, err: null, val: any): void;
+  public inactive(cb: (err: Error, val: any) => any, err: Error): void;
+
+  public close(cb?: (err?: Error) => any): void;
+  public close(allowActive: boolean, cb: (err?: Error) => any): void;
+}
+
+export default Fuse;
