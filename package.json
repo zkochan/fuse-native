@@ -15,7 +15,7 @@
   },
   "gypfile": true,
   "dependencies": {
-    "fuse-shared-library": "https://github.com/SandruSebastian/fuse-shared-library.git",
+    "fuse-shared-library": "github:refinio/fuse-shared-library.git",
     "nanoresource": "^1.3.0",
     "napi-macros": "^2.0.0",
     "node-gyp-build": "^4.2.0"
