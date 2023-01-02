@@ -3,6 +3,7 @@
   "version": "2.2.6",
   "description": "Fully maintained fuse bindings for Node that aims to cover the entire FUSE api",
   "main": "index.js",
+  "types": "index..d.ts",
   "bin": {
     "fuse-native": "./bin.js"
   },
