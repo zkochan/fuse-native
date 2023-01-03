@@ -1,12 +1,58 @@
 declare namespace Fuse {
   export interface OPERATIONS {
-    init?: (...args: any[]) => void;
-    error?: (...args: any[]) => void;
-    access?: (...args: any[]) => void;
-    statfs?: (...args: any[]) => void;
-    fgetattr?: (...args: any[]) => void;
-    getattr?: (...args: any[]) => void;
-    flush?: (...args: any[]) => void;
+    init?: (cb: (ret: number) => any) => void;
+    error?: (cb: (ret: number) => any) => void;
+    access?: (path: string, mode: number, cb: (ret: number) => any) => void;
+    statfs?: (path: string, cb: (
+        arg0: number,
+        stats?: {
+          bsize: number;
+          frsize: number;
+          blocks: number;
+          bfree: number;
+          bavail: number;
+          files: number;
+          ffree: number;
+          favail: number;
+          fsid: number;
+          flag: number;
+          namemax: number;
+        }
+    ) => void) => void;
+    fgetattr?: (
+        path: string,
+        fd: number,
+        cb: (
+            arg0: number,
+            stats?:
+                | {
+              mtime: Date;
+              atime: Date;
+              ctime: Date;
+              size: number;
+              mode: number;
+              uid: number;
+              gid: number;
+            }
+                | undefined
+        ) => void
+    ) => void;
+    getattr?: (
+        path: string,
+        cb: (
+            arg0: number,
+            stats?: {
+              mtime: Date;
+              atime: Date;
+              ctime: Date;
+              size: number;
+              mode: number;
+              uid: number;
+              gid: number;
+            }
+        ) => void
+    ) => void;
+    flush?: (path: string, fd: number, cb: (arg0: number, arg1?: number) => void) => void;
     fsync?: (...args: any[]) => void;
     fsyncdir?: (...args: any[]) => void;
     readdir?: (...args: any[]) => void;
