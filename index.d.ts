@@ -1,4 +1,21 @@
 declare namespace Fuse {
+  // Stats object produced by fuse-native index.js function getStatArray
+  export interface Stats {
+    mode: number;
+    uid: number;
+    gid: number;
+    size: number;
+    dev: number;
+    nlink: number;
+    ino: number;
+    rdev: number;
+    blksize: number;
+    blocks: number;
+    atime: Date;
+    mtime: Date;
+    ctime: Date;
+  }
+
   export interface OPERATIONS {
     init?: (cb: (err: number) => void) => void;
     error?: (cb: (err: number) => void) => void;
@@ -25,42 +42,20 @@ declare namespace Fuse {
     fgetattr?: (
         path: string,
         fd: number,
-        cb: (
-            err: number,
-            stat?: undefined | {
-              mtime: Date;
-              atime: Date;
-              ctime: Date;
-              size: number;
-              mode: number;
-              uid: number;
-              gid: number;
-            }
-        ) => void
+        cb: (err: number, stat?: Stats) => void
     ) => void;
     getattr?: (
         path: string,
-        cb: (
-            err: number,
-            stat?: {
-              mtime: Date;
-              atime: Date;
-              ctime: Date;
-              size: number;
-              mode: number;
-              uid: number;
-              gid: number;
-            }
-        ) => void
+        cb: (err: number, stat?: Stats) => void
     ) => void;
     flush?: (path: string, fd: number, cb: (err: number) => void) => void;
-    fsync?: (path: string, fd: number, dataSync: boolean, cb: (err: number) => void) => void;
-    fsyncdir?: (path: string, fd: number, dataSync: boolean, cb: (err: number) => void) => void;
-    readdir?: (path: string, cb: (err: number, files: string[]) => void) => void;
+    fsync?: (path: string, dataSync: boolean, fd: number, cb: (err: number) => void) => void;
+    fsyncdir?: (path: string, dataSync: boolean, fd: number, cb: (err: number) => void) => void;
+    readdir?: (path: string, cb: (err: number, names?: string[], stats?: Stats[]) => void) => void;
     truncate?: (path: string, size: number, cb: (err: number) => void) => void;
     ftruncate?: (path: string, fd: number, size: number, cb: (err: number) => void) => void;
     utimens?: (path: string, atime: Date, mtime: Date, cb: (err: number) => void) => void;
-    readlink?: (path: string, cb: (err: number, linkName: string) => void) => void;
+    readlink?: (path: string, cb: (err: number, linkName?: string) => void) => void;
     chown?: (path: string, uid: number, gid: number, cb: (err: number) => void) => void;
     chmod?: (path: string, mode: number, cb: (err: number) => void) => void;
     mknod?: (path: string, mode: number, dev: number, cb: (err: number) => void) => void;
@@ -73,29 +68,30 @@ declare namespace Fuse {
         cb: (err: number) => void
     ) => void;
     getxattr?: (path: string, name: string, size: number, cb: (err: number) => void) => void;
-    listxattr?: (path: string, cb: (err: number, list: string[]) => void) => void;
+    listxattr?: (path: string, cb: (err: number, list?: string[]) => void) => void;
     removexattr?: (path: string, name: string, cb: (err: number) => void) => void;
-    open?: (path: string, mode: number, cb: (err: number, fd: number) => void) => void;
-    opendir?: (path: string, mode: number, cb: (err: number, fd: number) => void) => void;
+    open?: (path: string, mode: number, cb: (err: number, fd?: number) => void) => void;
+    opendir?: (path: string, mode: number, cb: (err: number, fd?: number) => void) => void;
     read?: (
         path: string,
         fd: number,
         buffer: Buffer,
         length: number,
         position: number,
-        cb: (err: number, bytesRead: number) => void
+        cb: (err: number, bytesRead?: number) => void
     ) => void;
     write?: (
-        path,
+        path: string,
         fd: number,
         buffer: Buffer,
         length: number,
         position: number,
         cb: (err: number, bytesWritten?: number) => void
     ) => void;
-    // For every open() call there will be exactly one release() call with the same flags and file handle. It
-    // is possible to have a file opened more than once, in which case only the last release will mean, that
-    // no more reads/writes will happen on the file. The return value of release is ignored.
+    // For every open() call there will be exactly one release() call with the same flags and
+    // file handle. It is possible to have a file opened more than once, in which case only the
+    // last release will mean, that no more reads/writes will happen on the file. The return
+    // value of release is ignored.
     release?: (path: string, fd: number, cb: (err: number) => void) => void;
     releasedir?: (path: string, fd: number, cb: (err: number) => void) => void;
     create?: (
