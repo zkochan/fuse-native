@@ -1,6 +1,6 @@
 {
   "name": "fuse-native",
-  "version": "2.2.6-v7",
+  "version": "2.2.6-v8",
   "description": "Fully maintained fuse bindings for Node that aims to cover the entire FUSE api",
   "main": "index.js",
   "types": "index.d.ts",
