@@ -1,31 +1,33 @@
 declare namespace Fuse {
   export interface OPERATIONS {
-    init?: (cb: (ret: number) => any) => void;
-    error?: (cb: (ret: number) => any) => void;
-    access?: (path: string, mode: number, cb: (ret: number) => any) => void;
-    statfs?: (path: string, cb: (
-        arg0: number,
-        stats?: {
-          bsize: number;
-          frsize: number;
-          blocks: number;
-          bfree: number;
-          bavail: number;
-          files: number;
-          ffree: number;
-          favail: number;
-          fsid: number;
-          flag: number;
-          namemax: number;
-        }
-    ) => void) => void;
+    init?: (cb: (err: number) => void) => void;
+    error?: (cb: (err: number) => void) => void;
+    access?: (path: string, mode: number, cb: (err: number) => void) => void;
+    statfs?: (
+        path: string,
+        cb: (
+            err: number,
+            stats?: {
+              bsize: number;
+              frsize: number;
+              blocks: number;
+              bfree: number;
+              bavail: number;
+              files: number;
+              ffree: number;
+              favail: number;
+              fsid: number;
+              flag: number;
+              namemax: number;
+            }
+        ) => void
+    ) => void;
     fgetattr?: (
         path: string,
         fd: number,
         cb: (
-            arg0: number,
-            stats?:
-                | {
+            err: number,
+            stat?: undefined | {
               mtime: Date;
               atime: Date;
               ctime: Date;
@@ -34,14 +36,13 @@ declare namespace Fuse {
               uid: number;
               gid: number;
             }
-                | undefined
         ) => void
     ) => void;
     getattr?: (
         path: string,
         cb: (
-            arg0: number,
-            stats?: {
+            err: number,
+            stat?: {
               mtime: Date;
               atime: Date;
               ctime: Date;
@@ -52,34 +53,62 @@ declare namespace Fuse {
             }
         ) => void
     ) => void;
-    flush?: (path: string, fd: number, cb: (arg0: number, arg1?: number) => void) => void;
-    fsync?: (...args: any[]) => void;
-    fsyncdir?: (...args: any[]) => void;
-    readdir?: (...args: any[]) => void;
-    truncate?: (...args: any[]) => void;
-    ftruncate?: (...args: any[]) => void;
-    utimens?: (...args: any[]) => void;
-    readlink?: (...args: any[]) => void;
-    chown?: (...args: any[]) => void;
-    chmod?: (...args: any[]) => void;
-    mknod?: (...args: any[]) => void;
-    setxattr?: (...args: any[]) => void;
-    getxattr?: (...args: any[]) => void;
-    listxattr?: (...args: any[]) => void;
-    removexattr?: (...args: any[]) => void;
-    open?: (...args: any[]) => void;
-    opendir?: (...args: any[]) => void;
-    read?: (...args: any[]) => void;
-    write?: (...args: any[]) => void;
-    release?: (...args: any[]) => void;
-    releasedir?: (...args: any[]) => void;
-    create?: (...args: any[]) => void;
-    unlink?: (...args: any[]) => void;
-    rename?: (...args: any[]) => void;
-    link?: (...args: any[]) => void;
-    symlink?: (...args: any[]) => void;
-    mkdir?: (...args: any[]) => void;
-    rmdir?: (...args: any[]) => void
+    flush?: (path: string, fd: number, cb: (err: number) => void) => void;
+    fsync?: (path: string, fd: number, dataSync: boolean, cb: (err: number) => void) => void;
+    fsyncdir?: (path: string, fd: number, dataSync: boolean, cb: (err: number) => void) => void;
+    readdir?: (path: string, cb: (err: number, files: string[]) => void) => void;
+    truncate?: (path: string, size: number, cb: (err: number) => void) => void;
+    ftruncate?: (path: string, fd: number, size: number, cb: (err: number) => void) => void;
+    utimens?: (path: string, atime: Date, mtime: Date, cb: (err: number) => void) => void;
+    readlink?: (path: string, cb: (err: number, linkName: string) => void) => void;
+    chown?: (path: string, uid: number, gid: number, cb: (err: number) => void) => void;
+    chmod?: (path: string, mode: number, cb: (err: number) => void) => void;
+    mknod?: (path: string, mode: number, dev: number, cb: (err: number) => void) => void;
+    setxattr?: (
+        path: string,
+        name: string,
+        value: Buffer,
+        size: number,
+        flags: number,
+        cb: (err: number) => void
+    ) => void;
+    getxattr?: (path: string, name: string, size: number, cb: (err: number) => void) => void;
+    listxattr?: (path: string, cb: (err: number, list: string[]) => void) => void;
+    removexattr?: (path: string, name: string, cb: (err: number) => void) => void;
+    open?: (path: string, mode: number, cb: (err: number, fd: number) => void) => void;
+    opendir?: (path: string, mode: number, cb: (err: number, fd: number) => void) => void;
+    read?: (
+        path: string,
+        fd: number,
+        buffer: Buffer,
+        length: number,
+        position: number,
+        cb: (err: number, bytesRead: number) => void
+    ) => void;
+    write?: (
+        path,
+        fd: number,
+        buffer: Buffer,
+        length: number,
+        position: number,
+        cb: (err: number, bytesWritten?: number) => void
+    ) => void;
+    // For every open() call there will be exactly one release() call with the same flags and file handle. It
+    // is possible to have a file opened more than once, in which case only the last release will mean, that
+    // no more reads/writes will happen on the file. The return value of release is ignored.
+    release?: (path: string, fd: number, cb: (err: number) => void) => void;
+    releasedir?: (path: string, fd: number, cb: (err: number) => void) => void;
+    create?: (
+        path: string,
+        mode: number,
+        cb: (err: number, fd?: number, modePassedOn?: number) => void
+    ) => void;
+    unlink?: (path: string, cb: (err: number) => void) => void;
+    rename?: (src: string, dest: string, cb: (err: number) => void) => void;
+    link?: (src: string, dest: string, cb: (err: number) => void) => void;
+    symlink?: (src: string, dest: string, cb: (err: number) => void) => void;
+    mkdir?: (path: string, mode: number, cb: (err: number) => void) => void;
+    rmdir?: (path: string, cb: (err: number) => void) => void;
   }
 
   // See https://github.com/refinio/fuse-native
@@ -87,7 +116,7 @@ declare namespace Fuse {
   export interface OPTIONS {
     uid?: number;
     gid?: number;
-    timeout?: number
+    timeout?: number;
     displayFolder?: string;
     debug?: boolean;
     force?: boolean;
