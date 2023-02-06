@@ -8,9 +8,6 @@
     "libraries": [
       "<!@(node -e \"require('fuse-shared-library/lib')\")",
     ],
-    "sources": [
-      "fuse-native.cpp"
-    ],
     'xcode_settings': {
       'OTHER_CFLAGS': [
         '-g',
@@ -22,6 +19,10 @@
       '-g',
       '-O3',
       '-Wall'
+    ],
+    "conditions": [
+      ['OS!="win"', { "sources": [ "fuse-native.c" ]}],
+      ['OS=="win"', { "sources": [ "fuse-native.cpp" ]}],
     ],
   }, {
     "target_name": "postinstall",
