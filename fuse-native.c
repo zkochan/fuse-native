@@ -10,9 +10,9 @@
 #include <assert.h>
 
 #include <fuse.h>
-#include <fuse_opt.h>
-#include <fuse_common.h>
-#include <fuse_lowlevel.h>
+#include </usr/local/include/fuse/fuse_opt.h>
+#include </usr/local/include/fuse/fuse_common.h>
+#include </usr/local/include/fuse/fuse_lowlevel.h>
 
 #include <unistd.h>
 #include <sys/wait.h>
