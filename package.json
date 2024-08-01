@@ -1,6 +1,6 @@
 {
-  "name": "fuse-native",
-  "version": "2.2.6-v9",
+  "name": "@zkochan/fuse-native",
+  "version": "0.0.0",
   "description": "Fully maintained fuse bindings for Node that aims to cover the entire FUSE api",
   "main": "index.js",
   "types": "index.d.ts",
@@ -16,7 +16,7 @@
   },
   "gypfile": true,
   "dependencies": {
-    "fuse-shared-library": "github:refinio/fuse-shared-library.git",
+    "fuse-shared-library": "npm:@zkochan/fuse-shared-library@0.0.0",
     "nanoresource": "^1.3.0",
     "napi-macros": "^2.0.0",
     "node-gyp-build": "^4.2.0"
