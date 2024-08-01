@@ -1,4 +1,4 @@
-declare module "fuse-native" {
+declare module "@zkochan/fuse-native" {
     // Stats object produced by fuse-native index.js function getStatArray
 
     export interface Stats {

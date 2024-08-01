@@ -1,6 +1,6 @@
 {
   "name": "@zkochan/fuse-native",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Fully maintained fuse bindings for Node that aims to cover the entire FUSE api",
   "main": "index.js",
   "types": "index.d.ts",
